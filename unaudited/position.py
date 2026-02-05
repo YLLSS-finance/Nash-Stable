@@ -2,10 +2,10 @@ from sortedcontainers import SortedDict
 
 
 class position:
-    def __init__(self, user_balance):
+    def __init__(self, user_balance, position=[0, 0]):
         self.userBalance = user_balance
 
-        self.position = [0, 0]
+        self.position = position
         self.reducible = [0, 0]
 
         self.levels = [SortedDict(), SortedDict()]
@@ -116,6 +116,16 @@ class position:
 
         if not sum(order_price_level):
             del side_levels[level_price]
+
+    def remove_all_orders(self):
+        for side, side_level in self.levels:
+            for price, quantities in side_level.items():
+                per_lot_cost = self.cost_function[side](price)
+
+                # return the margin used by the increase orders at the price level
+                self.userBalance[1] -= per_lot_cost * quantities[1]
+
+                del side_level[price]
 
     def alloc_reducible_position(self):
         # List of Data Manipulations conducted
