@@ -1,5 +1,3 @@
-from this import d
-
 import numpy as np
 
 
@@ -13,25 +11,26 @@ class orders:
 
     def add_account(self, mpid):
         if mpid not in self.mapping:
-            self.mapping[mpid] = [len(self.mapping.keys()) * self._ordersPerAccount]
+            self.mapping[mpid] = len(self.mapping.keys()) * self._ordersPerAccount
 
     def add_order(
-        self, timestamp, order_id, mpid, contract_id, price, side, qty, head, tail
+        self, timestamp, order_id, mpid, contract_id, price, side, qty, head=-1, tail=-1
     ):
         """
         Adds a new order given order parameters and returns a view into the new order
         """
+
         order_idx = self.mapping[mpid] + order_id
         self.orders[order_idx] = [
-            timestamp,
-            order_id,
-            mpid,
-            contract_id,
-            price,
-            side,
-            qty,
-            head,
-            tail,
+            timestamp,  # 0
+            order_id,  # 1
+            mpid,  # 2
+            contract_id,  # 3
+            price,  # 4
+            side,  # 5
+            qty,  # 6
+            head,  # 7
+            tail,  # 8
         ]
 
-        return self.orders[order_idx]
+        return order_idx, self.orders[order_idx]

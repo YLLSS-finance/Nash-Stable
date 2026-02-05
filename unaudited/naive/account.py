@@ -6,7 +6,13 @@ from position import position
 
 
 class account:
-    def __init__(self, mpid, balance, prio):
+    def __init__(
+        self,
+        _master,
+        mpid,
+        balance,
+        prio,
+    ):
         self.mpid = int(mpid)
 
         # balance, used margin
@@ -20,6 +26,8 @@ class account:
         self.orders = {}
         self.availableOrders = set([i for i in range(0, 20)])
 
+        self.orderBooks = _master.orderBooks
+
     def add_order(self, timestamp, instrument_id, price, side, qty):
         if not self.availableOrders:
             return False, 250
@@ -28,6 +36,10 @@ class account:
         if instrument_id not in self.positions:
             self.positions[instrument_id] = position(
                 user_balance=self.balance, position=[0, 0]
+            )
+
+            self.orderBooks[instrument_id].positionReferance[self.mpid] = (
+                self.positions[instrument_id]
             )
 
         if self.positions[instrument_id].insert_order(price=price, side=side, qty=qty):
@@ -41,11 +53,18 @@ class account:
                 qty,
                 self.prio,
             ]
+
             self.orders[order_ID] = new_order
             return True, new
+
         return False, 200
 
-    def cancel_order(self, order_id):
+    def log_fill(self, instrument, price, side, qty):
+        """
+        This manipulates the position manager only
+        """
+
+    def remove_order(self, order_id):
         if order_id not in self.orders:
             return False
 

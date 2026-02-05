@@ -22,7 +22,16 @@ class account:
 
         position_manager = self.positions[contract_id]
         if position_manager.insert_order(price, side, qty):
+            order_id = self.availableOrders.pop()
+            self.usedOrders.add(order_id)
             return True, self.availableOrders.pop()
         else:
             # Insufficient margin
             return False, 200
+
+    def remove_order(self, order_id):
+        if order_id not in self.usedOrders:
+            return False, 250
+
+        self.usedOrders.remove(order_id)
+        return True, 100
