@@ -24,7 +24,7 @@ class account:
         if position_manager.insert_order(price, side, qty):
             order_id = self.availableOrders.pop()
             self.usedOrders.add(order_id)
-            return True, self.availableOrders.pop()
+            return True, order_id
         else:
             # Insufficient margin
             return False, 200

@@ -55,7 +55,7 @@ class account:
             ]
 
             self.orders[order_ID] = new_order
-            return True, new
+            return True, new_order
 
         return False, 200
 
