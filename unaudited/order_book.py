@@ -84,7 +84,7 @@ class order_book:
         opp_side = 1 - order_side
         opp_tob = self.topOfBook[opp_side]
         tob_updated = True
-        # Check for opposite price level not corossing or empty
+        # Check for opposite price level not crossing or empty
 
         opp_levels = self.levels[opp_side]
         opp_prices = self.levelPrices[opp_side]
@@ -107,9 +107,7 @@ class order_book:
             if not fill_qty:
                 break
 
-            self.fill_order(
-                order_view=opp_order_view, fill_price=fill_price, fill_qty=fill_qty
-            )
+            self.fill_order(order_view=opp_order_view, fills=[(fill_price, fill_qty)])
             fills.append((fill_price, fill_qty))
 
             opp_level[5] -= fill_qty
