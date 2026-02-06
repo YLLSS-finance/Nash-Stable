@@ -36,7 +36,6 @@ class nash:
 
     def fill_order(self, order_view, fills):
         order_price, order_side = order_view
-        order_view[6] -= fill_qty
         acct = self.accounts[order_view[2]]
 
         if order_view[6] == 0:
@@ -47,3 +46,4 @@ class nash:
             acct.positions[order_view[3]].fill_order(
                 order_price, order_side, fill_price, fill_qty
             )
+            order_view[6] -= fill_qty
