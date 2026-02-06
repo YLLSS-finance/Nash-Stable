@@ -34,7 +34,7 @@ class nash:
             qty=qty,
         )
 
-    def fill_order(self, order_view, fill_price, fill_qty):
+    def fill_order(self, order_view, fills):
         order_price, order_side = order_view
         order_view[6] -= fill_qty
         acct = self.accounts[order_view[2]]
@@ -43,6 +43,7 @@ class nash:
             acct.remove_order()
 
         # log the fill in the margin manager
-        acct.positions[order_view[3]].fill_order(
-            order_price, order_side, fill_price, fill_qty
-        )
+        for fill_price, fill_qty in fills:
+            acct.positions[order_view[3]].fill_order(
+                order_price, order_side, fill_price, fill_qty
+            )
