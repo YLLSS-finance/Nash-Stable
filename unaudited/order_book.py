@@ -88,7 +88,7 @@ class order_book:
 
         opp_levels = self.levels[opp_side]
         opp_prices = self.levelPrices[opp_side]
-        not_crossing = lambda a, b: a > b if order_side == 0 else lambda a, b: -a < b
+        not_crossing = lambda a, b: a < b if order_side == 0 else lambda a, b: -a > b
 
         fills = []
         while True:
