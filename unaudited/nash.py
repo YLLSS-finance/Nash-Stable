@@ -1,3 +1,4 @@
+from _typeshed import FileDescriptor
 from orders import orders
 
 
@@ -31,4 +32,17 @@ class nash:
             price=price,
             side=side,
             qty=qty,
+        )
+
+    def fill_order(self, order_view, fill_price, fill_qty):
+        order_price, order_side = order_view
+        order_view[6] -= fill_qty
+        acct = self.accounts[order_view[2]]
+
+        if order_view[6] == 0:
+            acct.remove_order()
+
+        # log the fill in the margin manager
+        acct.positions[order_view[3]].fill_order(
+            order_price, order_side, fill_price, fill_qty
         )

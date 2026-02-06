@@ -1,8 +1,9 @@
+from nash import nash
 from sortedcontainers import SortedDict
 
 
 class order_book:
-    def __init__(self, _master):
+    def __init__(self, _master: nash):
         self.positionReferance = {}
         self.topOfBook = [None, None]
 
@@ -13,6 +14,8 @@ class order_book:
 
         self.globalAccounts = _master.accounts
         self.globalOrders = _master.orders
+
+        self.fill_order = _master.fill_order
 
     def set_order_head(self, order_idx, head):
         self.globalOrders.orders[order_idx][7] = head
@@ -62,7 +65,7 @@ class order_book:
         else:
             order_price_level = side_level[order_price]
 
-            # For the head order of the tail price level of the new order,
+            # For the head order of the tail price level of the new order,zze
             # set its head to that of the new order,
             # as it directly connects with it (new order is at the end of the queue at its price level,
             # so the first order at the immediately worse price level has to update its head link to it)
@@ -76,3 +79,51 @@ class order_book:
             # update cumulative order count and order quantity
             order_price_level[4] += 1
             order_price_level[5] += order_quantity
+
+    def process_new_order(self, order_price, order_side, order_qty):
+        opp_side = 1 - order_side
+        opp_tob = self.topOfBook[opp_side]
+        tob_updated = True
+        # Check for opposite price level not corossing or empty
+
+        opp_levels = self.levels[opp_side]
+        opp_prices = self.levelPrices[opp_side]
+        not_crossing = lambda a, b: a > b if order_side == 0 else lambda a, b: -a < b
+
+        fills = []
+        while True:
+            if tob_updated:
+                if opp_tob is None or not_crossing(opp_tob, order_price):
+                    break
+                tob_updated = False
+
+            opp_level = opp_levels[opp_tob]
+            opp_order_idx = opp_level[0]
+            opp_order_view = self.globalOrders.orders[opp_order_idx]
+
+            fill_price = opp_order_view[4]
+            fill_qty = min(order_qty, opp_order_view[6])
+
+            if not fill_qty:
+                break
+
+            self.fill_order(
+                order_view=opp_order_view, fill_price=fill_price, fill_qty=fill_qty
+            )
+            fills.append((fill_price, fill_qty))
+
+            opp_level[5] -= fill_qty
+
+            if not opp_order_view[6]:
+                opp_level[4] -= 1
+                if not opp_level[4]:
+                    del opp_levels[opp_tob]
+                    if len(opp_prices):
+                        opp_tob = opp_prices[0]
+                        tob_updated = True
+                    else:
+                        break
+
+                opp_level[2] = opp_order_view[8]
+            else:
+                break

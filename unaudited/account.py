@@ -34,4 +34,5 @@ class account:
             return False, 250
 
         self.usedOrders.remove(order_id)
+        self.availableOrders.add(order_id)
         return True, 100
