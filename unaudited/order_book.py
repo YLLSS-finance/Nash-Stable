@@ -82,7 +82,6 @@ class order_book:
 
     def process_new_order(self, order_price, order_side, order_qty):
         opp_side = 1 - order_side
-        opp_tob = self.topOfBook[opp_side]
         tob_updated = True
         # Check for opposite price level not crossing or empty
 
@@ -92,6 +91,7 @@ class order_book:
 
         fills = []
         while True:
+            opp_tob = self.topOfBook[opp_side]
             if tob_updated:
                 if opp_tob is None or not_crossing(opp_tob, order_price):
                     break
@@ -108,8 +108,8 @@ class order_book:
                 break
 
             self.fill_order(order_view=opp_order_view, fills=[(fill_price, fill_qty)])
+            order_qty -= fill_qty
             fills.append((fill_price, fill_qty))
-
             opp_level[5] -= fill_qty
 
             if not opp_order_view[6]:
@@ -117,14 +117,12 @@ class order_book:
                 if not opp_level[4]:
                     del opp_levels[opp_tob]
                     if len(opp_prices):
-                        opp_tob = opp_prices[0]
+                        self.topOfBook[opp_side] = opp_prices[0]
                         tob_updated = True
                     else:
+                        self.topOfBook[opp_side] = None
                         break
 
                 opp_level[2] = opp_order_view[8]
             else:
                 break
-
-
-#

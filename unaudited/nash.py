@@ -47,6 +47,3 @@ class nash:
                 order_price, order_side, fill_price, fill_qty
             )
             order_view[6] -= fill_qty
-
-
-#
