@@ -8,7 +8,7 @@ class nash:
 
         self.orderBooks = {}
 
-        self.orders = orders(cache_orders=10000, orders_per_account=20)
+        self.orders = orders(_master=self, cache_orders=10000, orders_per_account=20)
 
     def create_account(self, mpid):
         if mpid in self.accounts:
