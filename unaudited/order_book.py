@@ -59,9 +59,14 @@ class order_book:
             cur_tob = self.topOfBook[order_side]
             if cur_tob is None:
                 self.topOfBook[order_side] = order_price
-            elif order_price < cur_tob:
-                cur_tob = order_price
+                return abs(order_price)
 
+            elif order_price < cur_tob:
+                diff = cur_tob - order_price
+                cur_tob = order_price
+                return diff
+
+            return None
         else:
             order_price_level = side_level[order_price]
 
@@ -109,12 +114,16 @@ class order_book:
             raise Exception(
                 "Attmpted to remove price level where an order(s) still exist"
             )
+
         head_price, tail_price = level[0:2]
         if head_price is not None:
             self.levels[head_price][1] = tail_price
         if tail_price is not None:
             self.levels[tail_price][0] = head_price
         del side_levels[price_level]
+
+        if price_level != self.topOfBook[side]:
+            return
 
         if len(level_prices):
             self.topOfBook[side] = level_prices[0]
@@ -158,8 +167,8 @@ class order_book:
             if not opp_order_view[6]:
                 opp_level[4] -= 1
                 if not opp_level[4]:
-                    book_empty = self.remove_price_level(opp_side, opp_tob)
-                    if book_empty:
+                    self.remove_price_level(opp_side, opp_tob)
+                    if not len(opp_prices):
                         break
 
                 opp_order_tail = opp_order_view[8]
@@ -168,3 +177,4 @@ class order_book:
                 self.globalOrders[opp_order_tail][7] = -1
             else:
                 break
+        return fills
