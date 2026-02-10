@@ -189,6 +189,14 @@ class position:
         self.userBalance[1] -= used_margin
         self.userBalance[0] += reduce_revenue - fill_cost
 
+    def resolve(self, resolution_value):
+        payoff = (
+            resolution_value * self.position[0]
+            + (100 - resolution_value) * self.position[1]
+        )
+        self.userBalance[0] += payoff
+        self.remove_all_orders()
+
 
 balance = [10000, 0]
 

@@ -17,7 +17,9 @@ class account:
         if not self.availableOrders:
             return False, 250
 
+        new_pos = False
         if contract_id not in self.positions:
+            new_pos = True
             self.positions[contract_id] = position(user_balance=self.balance)
 
         position_manager = self.positions[contract_id]
@@ -27,6 +29,8 @@ class account:
             return True, order_id
         else:
             # Insufficient margin
+            if new_pos:
+                del self.positions[contract_id]
             return False, 200
 
     def remove_order(self, order_id):

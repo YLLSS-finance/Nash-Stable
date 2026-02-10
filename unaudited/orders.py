@@ -20,7 +20,7 @@ class orders:
         if order_id not in account.usedOrders:
             return False, 250
 
-        return self.orders[self.mapping[mpid] + order_id]
+        return True, self.orders[self.mapping[mpid] + order_id]
 
     def get_all_orders(self, mpid):
         if mpid not in self.accounts:
