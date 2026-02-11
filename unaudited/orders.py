@@ -3,7 +3,7 @@ from nash import nash
 
 
 class orders:
-    def __init__(self, _master: nash, cache_orders, orders_per_account):
+    def __init__(self, _master, cache_orders, orders_per_account):
         self.orders = np.empty(shape=(cache_orders, 9), dtype=np.int32)
 
         # mpid: start_index

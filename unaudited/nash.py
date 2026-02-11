@@ -1,5 +1,6 @@
 from order_book import order_book
 from orders import orders
+from position import position
 
 
 class nash:
@@ -47,14 +48,26 @@ class nash:
             return False, 450
 
         acct = self.accounts[mpid]
-        successful, result = acct.add_order(contract_id, price, side, qty)
+        if not acct.availableOrders:
+            return False, 250
 
-        if not successful:
-            return False, result
+        new_pos = False
+        if contract_id not in acct.positions:
+            new_pos = True
+            acct.positions[contract_id] = position(user_balance=acct.balance)
+
+        position_manager = acct.positions[contract_id]
+        if position_manager.insert_order(price, side, qty):
+            order_id = acct.availableOrders.pop()
+            acct.usedOrders.add(order_id)
+        else:
+            if new_pos:
+                del acct.positions[contract_id]
+            return False, 200
 
         new_order_idx, new_order_view = self.orders.add_order(
             timestamp=timestamp,
-            order_id=result,
+            order_id=order_id,
             mpid=mpid,
             contract_id=contract_id,
             price=price,
@@ -71,17 +84,26 @@ class nash:
         if not fully_filled:
             contract_clob.add_order(new_order_idx, new_order_view)
 
+    def _acct_remove_order(self, acct, order_id):
+        if order_id not in acct.usedOrders:
+            return False
+
+        acct.usedOrders.remove(order_id)
+        acct.availableOrders.add(order_id)
+        return True
+
     def remove_order(self, mpid, order_id):
         acct = self.accounts[mpid]
-        successful, return_code = acct.removeOrder(order_id)
-        if successful:
+        if self._acct_remove_order(acct, order_id):
             order_exists, order_view = self.orders.get_order(
                 mpid=mpid, order_id=order_id
             )
+
             if order_exists:
                 self.orderBooks[order_view[3]].remove_order(order_view)
 
-        return successful, return_code
+            return True, 100
+        return False, 250
 
     def remove_contract_orders(self, mpid, contract_id, ignore_position=False):
         """
@@ -125,6 +147,6 @@ class nash:
             order_view[6] -= fill_qty
 
         if order_view[6] == 0:
-            acct.remove_order(order_view[1])
+            self._acct_remove_order(acct, order_view[1])
             return True
         return False
