@@ -33,13 +33,12 @@ class nash:
         if contract_id in self.orderBooks:
             holders = self.contractHolders[contract_id]
             for holder_mpid in holders:
-                self.accounts[holder_mpid].positions[contract_id].resolve(
+                holder_account = self.accounts[holder_mpid]
+                holder_account.positions[contract_id].resolve(
                     contract_id, value
                 )
-
                 self.remove_contract_orders(
-                    mpid=holder_mpid, contract_id=contract_id, ignore_position=True
-                )
+                    mpid=holder_mpid, contract_id=contract_id)
             return True, 100
         return False, 000
 
@@ -114,11 +113,13 @@ class nash:
 
             if order_exists:
                 self.orderBooks[order_view[3]].remove_order(order_view)
-
+                acct.positions[order_view[3]].remove_order(
+                    order_view[4], order_view[5], order_view[6]
+                )
             return True, 100
         return False, 250
 
-    def remove_contract_orders(self, mpid, contract_id, ignore_position=False):
+    def remove_contract_orders(self, mpid, contract_id):
         """
         Batch removes orders of an account with a specific contract ID.
         """
@@ -145,10 +146,9 @@ class nash:
 
             if order_view[3] == contract_id:
                 self.orderBooks[order_view[3]].remove_order(order_view)
-                if not ignore_position:
-                    position_manager.remove_order(
-                        order_view[4], order_view[5], order_view[6]
-                    )
+                position_manager.remove_order(
+                    order_view[4], order_view[5], order_view[6]
+                )
                 rmv.append(order_id)
 
         for rmv_id in rmv:
@@ -162,10 +162,11 @@ class nash:
 
         order_price, order_side = order_view[4:6]
         acct = self.accounts[order_view[2]]
+        acct_position_manager = acct.positions[order_view[3]]
 
         # log the fill in the margin manager
         for fill_price, fill_qty in fills:
-            acct.positions[order_view[3]].fill_order(
+            acct_position_manager.fill_order(
                 order_price, order_side, fill_price, fill_qty
             )
             order_view[6] -= fill_qty
