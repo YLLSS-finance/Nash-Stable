@@ -12,20 +12,23 @@ class nash:
 
         self.orders = orders(_master=self, cache_orders=10000, orders_per_account=20)
 
+    # admin
     def create_account(self, mpid):
         if mpid in self.accounts:
-            return False
+            return False, 000
 
         self.orders.add_account(mpid)
-        return True
+        return True, 100
 
+    # admin
     def add_contract(self, contract_id):
         if contract_id not in self.orderBooks:
             self.orderBooks[contract_id] = order_book(_master=self)
             self.contractHolders[contract_id] = set()
+            return True, 100
+        return False, 000
 
-        return False, 500
-
+    # admin
     def resolve_contract(self, contract_id, value):
         if contract_id in self.orderBooks:
             holders = self.contractHolders[contract_id]
@@ -38,14 +41,24 @@ class nash:
                     mpid=holder_mpid, contract_id=contract_id, ignore_position=True
                 )
             return True, 100
-        return False, 500
+        return False, 000
 
     def add_order(self, timestamp, mpid, contract_id, price, side, qty):
+        mpid = int(mpid)
+        contract_id = int(contract_id)
+
+        # Presence check for account and instrument
         if mpid not in self.accounts:
             return False, 400  # 400: account not found
 
         if contract_id not in self.orderBooks:
             return False, 450
+
+        # Check for malformed input
+        price = int(price)
+        qty = int(qty)
+        if price < 1 or price > 99 or side not in [0, 1] or qty < 1:
+            return False, 800
 
         acct = self.accounts[mpid]
         if not acct.availableOrders:
@@ -115,6 +128,13 @@ class nash:
             return
 
         acct = self.accounts[mpid]
+        if contract_id in acct.positions:
+            position_manager = acct.positions[contract_id]
+        else:
+            # if there does not exist even a position manager pertaining to an instrument, there must not be any orders
+            # as the former is required for the latter to exist!
+            return
+
         rmv = []
         for order_id in acct.usedOrders:
             order_exists, order_view = self.orders.get_order(
@@ -125,6 +145,10 @@ class nash:
 
             if order_view[3] == contract_id:
                 self.orderBooks[order_view[3]].remove_order(order_view)
+                if not ignore_position:
+                    position_manager.remove_order(
+                        order_view[4], order_view[5], order_view[6]
+                    )
                 rmv.append(order_id)
 
         for rmv_id in rmv:

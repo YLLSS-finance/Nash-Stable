@@ -178,6 +178,8 @@ class position:
 
         if not sum(order_level):
             del self.levels[order_side][level_price]
+            if fill_red:
+                self.redLevels[order_side] -= 1
 
         self.position[order_side] += fill_inc
         self.position[1 - order_side] -= fill_red
