@@ -1,3 +1,4 @@
+from account import account
 from order_book import order_book
 from orders import orders
 from position import position
@@ -17,6 +18,7 @@ class nash:
         if mpid in self.accounts:
             return False, 000
 
+        self.accounts[mpid] = account()
         self.orders.add_account(mpid)
         return True, 100
 
@@ -34,11 +36,8 @@ class nash:
             holders = self.contractHolders[contract_id]
             for holder_mpid in holders:
                 holder_account = self.accounts[holder_mpid]
-                holder_account.positions[contract_id].resolve(
-                    contract_id, value
-                )
-                self.remove_contract_orders(
-                    mpid=holder_mpid, contract_id=contract_id)
+                holder_account.positions[contract_id].resolve(contract_id, value)
+                self.remove_contract_orders(mpid=holder_mpid, contract_id=contract_id)
             return True, 100
         return False, 000
 
