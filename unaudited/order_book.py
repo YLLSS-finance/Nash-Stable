@@ -70,7 +70,7 @@ class order_book:
             # so the first order at the immediately worse price level has to update its head link to it)
             tail_price_level = side_level[order_price_level[1]]
             tail_price_head_order = tail_price_level[2]
-            self.set_order_head(order_idx=tail_price_head_order, head=idx)
+            self.globalOrders[tail_price_head_order][7] = idx
 
             # set the tail of the order's price level to that of the new order
             order_price_level[3] = idx
