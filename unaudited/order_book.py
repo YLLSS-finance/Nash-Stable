@@ -17,12 +17,6 @@ class order_book:
 
         self.fill_order = _master.fill_order
 
-    def set_order_head(self, order_idx, head):
-        self.globalOrders[order_idx][7] = head
-
-    def set_order_tail(self, order_idx, tail):
-        self.globalOrders[order_idx][8] = tail
-
     def add_order(self, idx, order):
         order_price, order_side, order_quantity = order[4:7]
         order_price = self.priceMapping[order_side](order_price)
