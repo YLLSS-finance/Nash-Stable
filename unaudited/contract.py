@@ -4,3 +4,5 @@ class contract:
         self.contractName = contract_name
         self.contractTicks = int(contract_ticks)
         self.costFunction = [lambda x: x, lambda x: self.contractTicks - x]
+
+        self.book = []

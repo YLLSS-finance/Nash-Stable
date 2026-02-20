@@ -15,8 +15,8 @@ class orders:
         self.price = self.contractID = np.empty(array_length, dtype=np.int16)
         self.side = np.empty(array_length, dtype=np.int8)
         self.qty = np.empty(array_length, dtype=np.uint16)
-        self.headOrder = self.contractID = np.empty(array_length, dtype=np.int32)
-        self.tailOrder = np.empty(array_length, dtype=np.int32)
+        self.head = np.empty(array_length, dtype=np.int32)
+        self.tail = np.empty(array_length, dtype=np.int32)
         self.marginManagerIdx = np.empty(array_length, dtype=np.int32)
 
     def add_account(self, mpid):
