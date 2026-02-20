@@ -2,7 +2,7 @@ from sortedcontainers import SortedDict
 
 
 class position:
-    def __init__(self, user_balance, position=[0, 0]):
+    def __init__(self, cost_function, user_balance, position=[0, 0]):
         self.userBalance = user_balance
 
         self.position = position
@@ -11,7 +11,7 @@ class position:
         self.levels = [SortedDict(), SortedDict()]
         self.redLevels = [0, 0]
 
-        self.cost_function = [lambda x: x, lambda x: 100 - x]
+        self.cost_function = cost_function
 
     def debug(self):
         print("Balances\n", self.userBalance, "\n")
@@ -194,7 +194,7 @@ class position:
     def resolve(self, resolution_value):
         payoff = (
             resolution_value * self.position[0]
-            + (100 - resolution_value) * self.position[1]
+            + self.cost_function[1](resolution_value) * self.position[1]
         )
         self.userBalance[0] += payoff
         self.remove_all_orders()

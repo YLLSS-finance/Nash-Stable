@@ -1,4 +1,6 @@
+import numpy as np
 from account import account
+from contract import contract
 from order_book import order_book
 from orders import orders
 from position import position
@@ -10,6 +12,7 @@ class nash:
 
         self.orderBooks = {}
         self.contractHolders = {}
+        self.contracts = {}
 
         self.orders = orders(_master=self, cache_orders=10000, orders_per_account=20)
 
@@ -23,16 +26,22 @@ class nash:
         return True, 100
 
     # admin
-    def add_contract(self, contract_id):
-        if contract_id not in self.orderBooks:
+    def add_contract(self, contract_id, contract_name, ticks):
+        if contract_id not in self.contracts:
             self.orderBooks[contract_id] = order_book(_master=self)
             self.contractHolders[contract_id] = set()
+            self.contracts[contract_id] = contract(
+                contract_id=contract_id,
+                contract_name=contract_name,
+                contract_ticks=ticks,
+            )
             return True, 100
         return False, 000
 
     # admin
     def resolve_contract(self, contract_id, value):
-        if contract_id in self.orderBooks:
+        if contract_id in self.contracts:
+            del self.contracts[contract_id]
             holders = self.contractHolders[contract_id]
             for holder_mpid in holders:
                 holder_account = self.accounts[holder_mpid]
@@ -49,13 +58,15 @@ class nash:
         if mpid not in self.accounts:
             return False, 400  # 400: account not found
 
-        if contract_id not in self.orderBooks:
+        if contract_id not in self.contracts:
             return False, 450
+
+        contract = self.contracts[contract_id]
 
         # Check for malformed input
         price = int(price)
         qty = int(qty)
-        if price < 1 or price > 99 or side not in [0, 1] or qty < 1:
+        if price < 0 or price > contract.contractTicks or side not in [0, 1] or qty < 1:
             return False, 800
 
         acct = self.accounts[mpid]
@@ -65,7 +76,10 @@ class nash:
         new_pos = False
         if contract_id not in acct.positions:
             new_pos = True
-            acct.positions[contract_id] = position(user_balance=acct.balance)
+            acct.positions[contract_id] = position(
+                user_balance=acct.balance,
+                cost_function=contract.costFunction,
+            )
 
         position_manager = acct.positions[contract_id]
         if position_manager.insert_order(price, side, qty):
@@ -109,6 +123,8 @@ class nash:
             order_exists, order_view = self.orders.get_order(
                 mpid=mpid, order_id=order_id
             )
+
+            order_view: np.array
 
             if order_exists:
                 self.orderBooks[order_view[3]].remove_order(order_view)
