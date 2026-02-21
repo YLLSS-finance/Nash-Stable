@@ -18,12 +18,14 @@ class orderLevel:
 
         # converted_price: [head_price, tail_price, head_order, tail_order, cum_orders, cum_qty]
         # remember that lower converted price == better
-        # if a new price is better than the current tob, the price delta is current_tob - new_tob * -self.sign
+        # if a new price is better than the current tob, the price delta is current_tob - new_tob
         self.book = SortedDict()
-        self.prices = self.book.keys() 
+        self.prices = self.book.keys()
         # the top of book shall be the value of the top-of-book price key in self.book
         # this way filling can occur directly without going through a dict key lookup which is comparatively slow
-        
+
+        self.tobPrice = None
+        self.tobContent = None
 
     def add_order(self, order_idx):
         order_price = self.orders.prices[order_idx] * self.sign
@@ -51,4 +53,15 @@ class orderLevel:
 
             self.orders.head[order_idx] = order_head
             self.orders.tail[order_idx] = order_tail
-            
+
+            self.book[order_price] = [head_price, tail_price, order_idx, order_idx, 1, self.orders.qty[order_idx]]
+
+            if self.tobPrice is None:
+                tob_change = order_price if self.sign == 1 else -order_price
+                self.tobPrice = order_price
+                self.tobContent = self.book[order_price]
+
+            elif order_price < self.tobPrice:
+                tob_change = self.tobPrice - order_price
+                self.tobPrice = order_price
+                self.tobContent = self.book[order_price]
