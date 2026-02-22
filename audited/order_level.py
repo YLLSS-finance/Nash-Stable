@@ -54,7 +54,7 @@ class orderLevel:
             self.orders.head[order_idx] = order_head
             self.orders.tail[order_idx] = order_tail
 
-            self.book[order_price] = [head_price, tail_price, order_idx, order_idx, 1, self.orders.qty[order_idx]]
+            self.book[order_price] = [head_price, tail_price, order_idx, order_idx, 1, self.orders.qty]
 
             if self.tobPrice is None:
                 tob_change = order_price if self.sign == 1 else -order_price

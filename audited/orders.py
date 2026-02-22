@@ -12,7 +12,7 @@ class orders:
         self.timestamp = np.empty(array_length, dtype=np.int32)
         self.mpid = np.empty(array_length, dtype=np.int32)
         self.contractID = np.empty(array_length, dtype=np.int32)
-        self.price = self.contractID = np.empty(array_length, dtype=np.int16)
+        self.price = np.empty(array_length, dtype=np.int16)
         self.side = np.empty(array_length, dtype=np.int8)
         self.qty = np.empty(array_length, dtype=np.uint16)
         self.head = np.empty(array_length, dtype=np.int32)
