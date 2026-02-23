@@ -2,7 +2,8 @@ from sortedcontainers import SortedDict
 
 
 class position:
-    def __init__(self, cost_function, user_balance, position=[0, 0]):
+    def __init__(self, cost_function, user_balance, position, index):
+        self.index = index
         self.userBalance = user_balance
 
         self.position = position
@@ -202,7 +203,7 @@ class position:
 
 balance = [10000, 0]
 
-pos = position(balance)
+pos = position([lambda x: x, lambda x: 100 - x], [1000000, 0], [0, 0], 0)
 
 pos.position = [0, 50]
 pos.reducible = [0, 50]

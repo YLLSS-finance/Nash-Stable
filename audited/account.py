@@ -11,11 +11,11 @@ class account:
         "orderStartIdx",
     )
 
-    def __init__(self, acct_start_idx):
+    def __init__(self, order_start_idx, num_orders):
         self.balance = [0, 0]
         self.positions = {}
 
         self.usedOrders = set()
         self.availableOrders = set([i for i in range(0, 20)])
 
-        self.orderStartIdx = acct_start_idx
+        self.orderStartIdx = order_start_idx

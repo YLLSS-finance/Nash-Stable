@@ -18,6 +18,7 @@ class orders:
         self.head = np.empty(array_length, dtype=np.int32)
         self.tail = np.empty(array_length, dtype=np.int32)
         self.marginManagerIdx = np.empty(array_length, dtype=np.int32)
+        self.order_used = np.zeros(array_length, dtype=np.bool)
 
     def add_account(self, mpid):
         if mpid in self.accountMapping:
